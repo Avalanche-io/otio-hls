@@ -1,10 +1,9 @@
-module github.com/mrjoshuak/otio-hls
+module github.com/Avalanche-io/otio-hls
 
 go 1.25.5
 
-replace github.com/mrjoshuak/gotio => ../gotio
 
-require github.com/mrjoshuak/gotio v0.0.0-00010101000000-000000000000
+require github.com/Avalanche-io/gotio v1.0.0
 
 require (
 	github.com/bytedance/gopkg v0.1.3 // indirect
@@ -13,6 +12,6 @@ require (
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
-	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
+	golang.org/x/arch v1.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/sys v0.22.0 // indirect
 )
