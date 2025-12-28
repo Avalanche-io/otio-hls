@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Avalanche-io/gotio/opentimelineio"
+	"github.com/Avalanche-io/gotio"
 )
 
 func TestDecodeSimplePlaylist(t *testing.T) {
@@ -44,7 +44,7 @@ segment3.ts
 		t.Fatalf("Expected 1 track, got %d", len(children))
 	}
 
-	track, ok := children[0].(*opentimelineio.Track)
+	track, ok := children[0].(*gotio.Track)
 	if !ok {
 		t.Fatalf("Expected Track, got %T", children[0])
 	}
@@ -80,7 +80,7 @@ segment.m4s
 		t.Fatalf("Expected 1 track, got %d", len(children))
 	}
 
-	track, ok := children[0].(*opentimelineio.Track)
+	track, ok := children[0].(*gotio.Track)
 	if !ok {
 		t.Fatalf("Expected Track, got %T", children[0])
 	}
@@ -107,7 +107,7 @@ segment2.ts
 	}
 
 	tracks := timeline.Tracks()
-	track, ok := tracks.Children()[0].(*opentimelineio.Track)
+	track, ok := tracks.Children()[0].(*gotio.Track)
 	if !ok {
 		t.Fatalf("Expected Track, got %T", tracks.Children()[0])
 	}

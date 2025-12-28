@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Avalanche-io/gotio/opentimelineio"
+	"github.com/Avalanche-io/gotio"
 )
 
 func TestDecodeWithKey(t *testing.T) {
@@ -30,13 +30,13 @@ segment2.ts
 	}
 
 	tracks := timeline.Tracks()
-	track, ok := tracks.Children()[0].(*opentimelineio.Track)
+	track, ok := tracks.Children()[0].(*gotio.Track)
 	if !ok {
 		t.Fatalf("Expected Track")
 	}
 
 	// Check first clip has key metadata
-	clip := track.Children()[0].(*opentimelineio.Clip)
+	clip := track.Children()[0].(*gotio.Clip)
 	metadata := clip.Metadata()
 	hlsMetadata, ok := metadata[metadataNamespace].(map[string]interface{})
 	if !ok {
@@ -72,13 +72,13 @@ segment2.ts
 	}
 
 	tracks := timeline.Tracks()
-	track, ok := tracks.Children()[0].(*opentimelineio.Track)
+	track, ok := tracks.Children()[0].(*gotio.Track)
 	if !ok {
 		t.Fatalf("Expected Track")
 	}
 
 	// Check first clip has program date time
-	clip := track.Children()[0].(*opentimelineio.Clip)
+	clip := track.Children()[0].(*gotio.Clip)
 	metadata := clip.Metadata()
 	hlsMetadata, ok := metadata[metadataNamespace].(map[string]interface{})
 	if !ok {
@@ -117,7 +117,7 @@ segment3.ts
 	}
 
 	tracks := timeline.Tracks()
-	track, ok := tracks.Children()[0].(*opentimelineio.Track)
+	track, ok := tracks.Children()[0].(*gotio.Track)
 	if !ok {
 		t.Fatalf("Expected Track")
 	}
@@ -128,7 +128,7 @@ segment3.ts
 	}
 
 	// First clip should have discontinuity_sequence = 0 (or not present)
-	clip1 := clips[0].(*opentimelineio.Clip)
+	clip1 := clips[0].(*gotio.Clip)
 	metadata1 := clip1.Metadata()
 	if hlsMetadata1, ok := metadata1[metadataNamespace].(map[string]interface{}); ok {
 		if seq, ok := hlsMetadata1["discontinuity_sequence"].(int); ok && seq != 0 {
@@ -137,7 +137,7 @@ segment3.ts
 	}
 
 	// Second clip should have discontinuity_sequence = 1
-	clip2 := clips[1].(*opentimelineio.Clip)
+	clip2 := clips[1].(*gotio.Clip)
 	metadata2 := clip2.Metadata()
 	hlsMetadata2, ok := metadata2[metadataNamespace].(map[string]interface{})
 	if !ok {
@@ -150,7 +150,7 @@ segment3.ts
 	}
 
 	// Third clip should have discontinuity_sequence = 2
-	clip3 := clips[2].(*opentimelineio.Clip)
+	clip3 := clips[2].(*gotio.Clip)
 	metadata3 := clip3.Metadata()
 	hlsMetadata3, ok := metadata3[metadataNamespace].(map[string]interface{})
 	if !ok {
@@ -164,11 +164,11 @@ segment3.ts
 }
 
 func TestEncodeMasterPlaylist(t *testing.T) {
-	timeline := opentimelineio.NewTimeline("Test", nil, nil)
+	timeline := gotio.NewTimeline("Test", nil, nil)
 
 	// Add video track
-	videoTrack := opentimelineio.NewTrack("v1", nil, opentimelineio.TrackKindVideo, nil, nil)
-	videoMetadata := make(opentimelineio.AnyDictionary)
+	videoTrack := gotio.NewTrack("v1", nil, gotio.TrackKindVideo, nil, nil)
+	videoMetadata := make(gotio.AnyDictionary)
 	videoMetadata[streamingMetadataNamespace] = map[string]interface{}{
 		"bandwidth":  123456,
 		"codec":      "avc1.4d401f",
@@ -183,8 +183,8 @@ func TestEncodeMasterPlaylist(t *testing.T) {
 	timeline.Tracks().AppendChild(videoTrack)
 
 	// Add audio track
-	audioTrack := opentimelineio.NewTrack("a1", nil, opentimelineio.TrackKindAudio, nil, nil)
-	audioMetadata := make(opentimelineio.AnyDictionary)
+	audioTrack := gotio.NewTrack("a1", nil, gotio.TrackKindAudio, nil, nil)
+	audioMetadata := make(gotio.AnyDictionary)
 	audioMetadata[streamingMetadataNamespace] = map[string]interface{}{
 		"bandwidth": 12345,
 		"codec":     "mp4a.40.2",
@@ -230,18 +230,18 @@ func TestEncodeMasterPlaylist(t *testing.T) {
 }
 
 func TestEncodeMasterPlaylistWithIFrame(t *testing.T) {
-	timeline := opentimelineio.NewTimeline("Test", nil, nil)
+	timeline := gotio.NewTimeline("Test", nil, nil)
 
 	// Force master playlist for single track
-	timelineMetadata := make(opentimelineio.AnyDictionary)
+	timelineMetadata := make(gotio.AnyDictionary)
 	timelineMetadata[metadataNamespace] = map[string]interface{}{
 		"master_playlist": true,
 	}
 	timeline.SetMetadata(timelineMetadata)
 
 	// Add video track with iframe playlist
-	videoTrack := opentimelineio.NewTrack("v1", nil, opentimelineio.TrackKindVideo, nil, nil)
-	videoMetadata := make(opentimelineio.AnyDictionary)
+	videoTrack := gotio.NewTrack("v1", nil, gotio.TrackKindVideo, nil, nil)
+	videoMetadata := make(gotio.AnyDictionary)
 	videoMetadata[streamingMetadataNamespace] = map[string]interface{}{
 		"bandwidth":  123456,
 		"codec":      "avc1.4d401f",
@@ -305,14 +305,14 @@ segment2.ts
 	}
 
 	tracks := timeline.Tracks()
-	track, ok := tracks.Children()[0].(*opentimelineio.Track)
+	track, ok := tracks.Children()[0].(*gotio.Track)
 	if !ok {
 		t.Fatalf("Expected Track")
 	}
 
 	clips := track.Children()
-	clip1 := clips[0].(*opentimelineio.Clip)
-	clip2 := clips[1].(*opentimelineio.Clip)
+	clip1 := clips[0].(*gotio.Clip)
+	clip2 := clips[1].(*gotio.Clip)
 
 	// Get durations
 	duration1, err := clip1.Duration()
@@ -359,12 +359,12 @@ segment.m4s
 	}
 
 	tracks := timeline.Tracks()
-	track, ok := tracks.Children()[0].(*opentimelineio.Track)
+	track, ok := tracks.Children()[0].(*gotio.Track)
 	if !ok {
 		t.Fatalf("Expected Track")
 	}
 
-	clip := track.Children()[0].(*opentimelineio.Clip)
+	clip := track.Children()[0].(*gotio.Clip)
 	metadata := clip.Metadata()
 
 	// Check streaming metadata exists

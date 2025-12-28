@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/Avalanche-io/gotio/opentime"
-	"github.com/Avalanche-io/gotio/opentimelineio"
+	"github.com/Avalanche-io/gotio"
 )
 
 // Decoder reads HLS playlists and converts them to OTIO timelines
@@ -25,7 +25,7 @@ func NewDecoder(r io.Reader) *Decoder {
 }
 
 // Decode reads an HLS playlist and returns an OTIO timeline
-func (d *Decoder) Decode() (*opentimelineio.Timeline, error) {
+func (d *Decoder) Decode() (*gotio.Timeline, error) {
 	entries, err := d.parsePlaylist()
 	if err != nil {
 		return nil, err
@@ -78,13 +78,13 @@ func (d *Decoder) isMediaPlaylist(entries []*PlaylistEntry) bool {
 }
 
 // decodeMediaPlaylist converts a media playlist to an OTIO timeline
-func (d *Decoder) decodeMediaPlaylist(entries []*PlaylistEntry) (*opentimelineio.Timeline, error) {
+func (d *Decoder) decodeMediaPlaylist(entries []*PlaylistEntry) (*gotio.Timeline, error) {
 	// Create timeline and track
-	timeline := opentimelineio.NewTimeline("HLS Playlist", nil, nil)
-	track := opentimelineio.NewTrack("", nil, opentimelineio.TrackKindVideo, nil, nil)
+	timeline := gotio.NewTimeline("HLS Playlist", nil, nil)
+	track := gotio.NewTrack("", nil, gotio.TrackKindVideo, nil, nil)
 
 	// Track metadata
-	trackMetadata := make(opentimelineio.AnyDictionary)
+	trackMetadata := make(gotio.AnyDictionary)
 	hlsMetadata := make(map[string]interface{})
 
 	// State for building clips
@@ -189,7 +189,7 @@ func (d *Decoder) decodeMediaPlaylist(entries []*PlaylistEntry) (*opentimelineio
 }
 
 // createClip creates an OTIO clip from HLS segment information
-func (d *Decoder) createClip(uri string, duration float64, title string, byterange *Byterange, mapURI string, mapByterange *Byterange, keyInfo string, programDateTime string, discontinuitySeq int) *opentimelineio.Clip {
+func (d *Decoder) createClip(uri string, duration float64, title string, byterange *Byterange, mapURI string, mapByterange *Byterange, keyInfo string, programDateTime string, discontinuitySeq int) *gotio.Clip {
 	// Use title as clip name, or URI if no title
 	name := title
 	if name == "" {
@@ -207,10 +207,10 @@ func (d *Decoder) createClip(uri string, duration float64, title string, byteran
 	}
 
 	// Create external reference
-	ref := opentimelineio.NewExternalReference("", uri, nil, nil)
+	ref := gotio.NewExternalReference("", uri, nil, nil)
 
 	// Build clip metadata
-	metadata := make(opentimelineio.AnyDictionary)
+	metadata := make(gotio.AnyDictionary)
 	hlsClipMetadata := make(map[string]interface{})
 	streamingMetadata := make(map[string]interface{})
 
@@ -258,7 +258,7 @@ func (d *Decoder) createClip(uri string, duration float64, title string, byteran
 	}
 
 	// Create clip with metadata on the reference
-	refMetadata := make(opentimelineio.AnyDictionary)
+	refMetadata := make(gotio.AnyDictionary)
 	if len(hlsClipMetadata) > 0 {
 		refMetadata[metadataNamespace] = hlsClipMetadata
 	}
@@ -268,7 +268,7 @@ func (d *Decoder) createClip(uri string, duration float64, title string, byteran
 	ref.SetMetadata(refMetadata)
 
 	// Create clip
-	clip := opentimelineio.NewClip(name, ref, sourceRange, metadata, nil, nil, "", nil)
+	clip := gotio.NewClip(name, ref, sourceRange, metadata, nil, nil, "", nil)
 
 	return clip
 }

@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Avalanche-io/gotio/opentimelineio"
+	"github.com/Avalanche-io/gotio"
 	"github.com/mrjoshuak/otio-hls"
 )
 
@@ -45,7 +45,7 @@ segment3.ts
 
 	// Get the first track
 	if len(timeline.Tracks().Children()) > 0 {
-		if track, ok := timeline.Tracks().Children()[0].(*opentimelineio.Track); ok {
+		if track, ok := timeline.Tracks().Children()[0].(*gotio.Track); ok {
 			fmt.Printf("Track has %d clips\n", len(track.Children()))
 
 			for i, child := range track.Children() {

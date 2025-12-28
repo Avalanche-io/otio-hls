@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/Avalanche-io/gotio/opentime"
-	"github.com/Avalanche-io/gotio/opentimelineio"
+	"github.com/Avalanche-io/gotio"
 )
 
 // Encoder writes OTIO timelines as HLS playlists
@@ -23,7 +23,7 @@ func NewEncoder(w io.Writer) *Encoder {
 }
 
 // Encode writes an OTIO timeline as an HLS playlist
-func (e *Encoder) Encode(t *opentimelineio.Timeline) error {
+func (e *Encoder) Encode(t *gotio.Timeline) error {
 	tracks := t.Tracks()
 	if tracks == nil {
 		return fmt.Errorf("timeline has no tracks")
@@ -48,7 +48,7 @@ func (e *Encoder) Encode(t *opentimelineio.Timeline) error {
 
 	// Single track = media playlist (unless master is forced)
 	if len(children) == 1 && !forceMaster {
-		track, ok := children[0].(*opentimelineio.Track)
+		track, ok := children[0].(*gotio.Track)
 		if !ok {
 			return fmt.Errorf("expected Track, got %T", children[0])
 		}
@@ -60,7 +60,7 @@ func (e *Encoder) Encode(t *opentimelineio.Timeline) error {
 }
 
 // encodeMediaPlaylist writes a single track as a media playlist
-func (e *Encoder) encodeMediaPlaylist(track *opentimelineio.Track) error {
+func (e *Encoder) encodeMediaPlaylist(track *gotio.Track) error {
 	var output strings.Builder
 
 	// Write header
@@ -103,7 +103,7 @@ func (e *Encoder) encodeMediaPlaylist(track *opentimelineio.Track) error {
 
 	// Write segments
 	for _, child := range track.Children() {
-		clip, ok := child.(*opentimelineio.Clip)
+		clip, ok := child.(*gotio.Clip)
 		if !ok {
 			continue
 		}
@@ -172,14 +172,14 @@ func (e *Encoder) encodeMediaPlaylist(track *opentimelineio.Track) error {
 
 // getHLSMetadata extracts HLS metadata from an object's metadata
 func (e *Encoder) getHLSMetadata(obj interface{}) map[string]interface{} {
-	var metadata opentimelineio.AnyDictionary
+	var metadata gotio.AnyDictionary
 
 	switch v := obj.(type) {
-	case *opentimelineio.Track:
+	case *gotio.Track:
 		metadata = v.Metadata()
-	case *opentimelineio.Clip:
+	case *gotio.Clip:
 		metadata = v.Metadata()
-	case *opentimelineio.Timeline:
+	case *gotio.Timeline:
 		metadata = v.Metadata()
 	default:
 		return make(map[string]interface{})
@@ -199,13 +199,13 @@ func (e *Encoder) getHLSMetadata(obj interface{}) map[string]interface{} {
 }
 
 // getTargetURL extracts the target URL from a clip's media reference
-func (e *Encoder) getTargetURL(clip *opentimelineio.Clip) string {
+func (e *Encoder) getTargetURL(clip *gotio.Clip) string {
 	ref := clip.MediaReference()
 	if ref == nil {
 		return ""
 	}
 
-	if extRef, ok := ref.(*opentimelineio.ExternalReference); ok {
+	if extRef, ok := ref.(*gotio.ExternalReference); ok {
 		return extRef.TargetURL()
 	}
 
@@ -213,7 +213,7 @@ func (e *Encoder) getTargetURL(clip *opentimelineio.Clip) string {
 }
 
 // encodeMasterPlaylist writes multiple tracks as a master playlist
-func (e *Encoder) encodeMasterPlaylist(t *opentimelineio.Timeline) error {
+func (e *Encoder) encodeMasterPlaylist(t *gotio.Timeline) error {
 	var output strings.Builder
 
 	// Write header
@@ -238,17 +238,17 @@ func (e *Encoder) encodeMasterPlaylist(t *opentimelineio.Timeline) error {
 	tracks := t.Tracks().Children()
 
 	// Separate video and audio tracks
-	var videoTracks []*opentimelineio.Track
-	var audioTracks []*opentimelineio.Track
+	var videoTracks []*gotio.Track
+	var audioTracks []*gotio.Track
 
 	for _, child := range tracks {
-		track, ok := child.(*opentimelineio.Track)
+		track, ok := child.(*gotio.Track)
 		if !ok {
 			continue
 		}
-		if track.Kind() == opentimelineio.TrackKindVideo {
+		if track.Kind() == gotio.TrackKindVideo {
 			videoTracks = append(videoTracks, track)
-		} else if track.Kind() == opentimelineio.TrackKindAudio {
+		} else if track.Kind() == gotio.TrackKindAudio {
 			audioTracks = append(audioTracks, track)
 		}
 	}
@@ -371,7 +371,7 @@ func (e *Encoder) encodeMasterPlaylist(t *opentimelineio.Timeline) error {
 }
 
 // getStreamingMetadata extracts streaming metadata from track
-func (e *Encoder) getStreamingMetadata(track *opentimelineio.Track) map[string]interface{} {
+func (e *Encoder) getStreamingMetadata(track *gotio.Track) map[string]interface{} {
 	metadata := track.Metadata()
 	if metadata == nil {
 		return make(map[string]interface{})
